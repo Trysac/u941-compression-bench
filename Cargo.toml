@@ -20,6 +20,10 @@ path = "src/lib.rs"
 conformance = []
 
 [dependencies]
+brotli = "^9"
+flate2 = "^1.1"
+lz4_flex = "^0.14"
+zstd = "^0.14"
 
 [dev-dependencies]
 proptest = { version = "1", default-features = false, features = ["std"] }
