@@ -1,0 +1,33 @@
+# Factory-owned file: agents must not edit it. Dependencies are added by the factory (`cargo add`).
+[package]
+name = "trysac-compression-bench"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+description = "Benchmark CLI that compares zstd, lz4, brotli and gzip on your data for ratio, throughput and peak memory, with seeded corpora pinned by SHA-256 for reproducible reports"
+license = "MIT"
+repository = "https://github.com/Trysac/u941-compression-bench"
+readme = "README.md"
+# The gate tooling and the factory's files are not part of the published crate.
+exclude = ["scripts/", ".github/", ".semgrep/", "fabrica.json", "docs-manifest.json"]
+
+[lib]
+name = "compression_bench"
+path = "src/lib.rs"
+
+[features]
+# CI-only conformance tier: tests behind `#![cfg(feature = "conformance")]` run only when FABRICA_CI=1.
+conformance = []
+
+[dependencies]
+
+[dev-dependencies]
+proptest = { version = "1", default-features = false, features = ["std"] }
+
+[lints.rust]
+unsafe_code = "forbid"
+# missing_docs is set in src/lib.rs: here it would also apply to every test crate under tests/.
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }

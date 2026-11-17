@@ -1,0 +1,12 @@
+# gitleaks configuration: default rules plus local-only paths that are never committed.
+title = "compression-bench gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Local tool output (ignored by git)"
+paths = [
+  '''(^|/)target/''',
+  '''\.(profraw|profdata)$''',
+]

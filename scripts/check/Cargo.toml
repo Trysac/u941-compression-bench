@@ -1,0 +1,12 @@
+# The quality gates of this repository (`cargo run --locked --manifest-path scripts/check/Cargo.toml`).
+# Factory-owned file: agents must not edit it. Its own workspace, so it is never part of the library crate.
+[package]
+name = "fabrica-check"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+serde_json = "1"
+
+[workspace]

@@ -1,0 +1,47 @@
+# Semgrep CE rules owned by the factory (MIT, like this repository). The semgrep gate in scripts/check runs
+# only this file; Semgrep-maintained registry rules are never used (their license forbids distribution and
+# service use). Every rule is ERROR: a match fails the gate. Factory-owned file: agents must not edit it.
+rules:
+  - id: fabrica.rust.exec-through-shell
+    languages: [rust]
+    severity: ERROR
+    message: Running a command through a shell (sh, bash, cmd, powershell) allows command injection. Call Command::new with the program and pass each argument with .arg().
+    pattern-either:
+      - pattern: Command::new("sh")
+      - pattern: Command::new("bash")
+      - pattern: Command::new("/bin/sh")
+      - pattern: Command::new("cmd")
+      - pattern: Command::new("powershell")
+      - pattern: std::process::Command::new("sh")
+      - pattern: std::process::Command::new("bash")
+      - pattern: std::process::Command::new("cmd")
+  - id: fabrica.rust.tls-verification-disabled
+    languages: [rust]
+    severity: ERROR
+    message: TLS certificate or host name verification is disabled (danger_accept_invalid_certs(true) or danger_accept_invalid_hostnames(true)), so any server can impersonate the real one.
+    pattern-either:
+      - pattern: $B.danger_accept_invalid_certs(true)
+      - pattern: $B.danger_accept_invalid_hostnames(true)
+  - id: fabrica.rust.unsafe-code
+    languages: [rust]
+    severity: ERROR
+    message: unsafe code is forbidden in this crate (unsafe_code = "forbid"); write it in safe Rust.
+    pattern-regex: \bunsafe\s*(\{|fn\b|impl\b|trait\b|extern\b)
+  - id: fabrica.rust.transmute
+    languages: [rust]
+    severity: ERROR
+    message: mem::transmute reinterprets memory without checks. Use from_ne_bytes/to_ne_bytes, From/TryFrom or an explicit conversion.
+    pattern-either:
+      - pattern: std::mem::transmute(...)
+      - pattern: mem::transmute(...)
+      - pattern: transmute(...)
+  - id: fabrica.rust.hardcoded-secret
+    languages: [rust]
+    severity: ERROR
+    message: A credential (private key, AKIA access key, GitHub, Slack or Stripe token) is hard-coded in the source. Read it from the environment.
+    pattern-either:
+      - pattern-regex: -----BEGIN (RSA |EC |DSA |OPENSSH |ENCRYPTED )?PRIVATE KEY-----
+      - pattern-regex: \b(AKIA|ASIA)[0-9A-Z]{16}\b
+      - pattern-regex: \bgh[pousr]_[A-Za-z0-9]{36}\b
+      - pattern-regex: \bxox[baprs]-[A-Za-z0-9-]{10,}\b
+      - pattern-regex: \bsk_live_[A-Za-z0-9]{24,}\b

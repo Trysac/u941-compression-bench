@@ -1,0 +1,14 @@
+# Build output
+/target/
+/scripts/check/target/
+
+# Coverage
+*.profraw
+*.profdata
+lcov.info
+coverage.*
+
+# Local environment
+.env
+.env.*
+!.env.example
