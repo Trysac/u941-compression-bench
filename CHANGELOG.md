@@ -9,4 +9,5 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Added compression benchmark harness, SplitMix64 seeded corpus generator, FIPS 180-4 SHA-256 manifest verifier, zstd/lz4/brotli/gzip codec adapters, and CLI.
 - Initial project structure from the factory utility template.

@@ -1,24 +1,14 @@
 # Security notes
 
-## Threat model
+## Threat Model
 
-`trysac-compression-bench` is a pure library without I/O. The main risks are:
+### Defended
 
-- **Supply chain**: a compromised dependency or CI action. Mitigation: standard library only,
-  `Cargo.lock` with crates.io checksums and `--locked` builds, `cargo-audit` (RustSec) and
-  OSV-Scanner in the gates, Dependabot weekly updates, actions pinned by commit SHA, minimal
-  workflow permissions.
-- **Leaked secrets**: tokens committed by mistake. Mitigation: `gitleaks` runs in the local gates
-  and in CI; `.env` files are git-ignored.
-- **Insecure code**: memory unsafety, disabled TLS verification, command injection. Mitigation:
-  `unsafe_code = "forbid"` in `Cargo.toml`, clippy with `-D warnings`, and the factory's Semgrep
-  rules (`.semgrep/factory-rules.yml`, `nosemgrep` ignored); fix the code instead of silencing it.
-- **Untrusted input**: callers may pass hostile strings. Mitigation: validate input and return
-  explicit errors; never panic on input; never spawn a shell with untrusted data.
+- **Untrusted Input**: Input strings for codec specifications and CLI arguments are validated; invalid input returns explicit error codes (e.g., `unknown_codec`, `usage`) rather than panicking or crashing.
+- **Resource Exhaustion**: Decompression capacity is capped at 1 GiB per operation to prevent decompression bombs. Input corpus sizes are capped at 1 GiB (`DEFAULT_MAX_TOTAL_BYTES`). Manifest file size is capped at 16 MiB.
+- **Supply Chain**: Uses `Cargo.lock` with checksums; `unsafe` code is forbidden.
 
-## Publishing
+### Not Defended
 
-Releases are git tags; publishing to crates.io needs a registry token, which is never stored in the
-repository.
-
-To report a vulnerability, see [SECURITY.md](../SECURITY.md).
+- **Hostile Codec Implementations**: The crate calls third-party libraries (`zstd`, `lz4_flex`, `brotli`, `flate2`). Vulnerabilities within these specific underlying C-bindings or logic are inherited.
+- **Arbitrary File Access**: The tool will read any file path provided via CLI or manifest if permissions allow.
